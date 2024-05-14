@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat</title>
+</head>
+<body>
+    <div id="chat-box">
+        {% for conversation in conversations %}
+            <div>{{ conversation }}</div>
+        {% endfor %}
+    </div>
+    <form id="message-form">
+        <input type="text" id="user" placeholder="Your Name">
+        <input type="text" id="message" placeholder="Type your message">
+        <button type="submit">Send</button>
+    </form>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $("#message-form").submit(function(event){
+                event.preventDefault();
+                var user = $("#user").val();
+                var message = $("#message").val();
+                $.ajax({
+                    type: "POST",
+                    url: "/add_message/",
+                    data: {
+                        'user': user,
+                        'message': message,
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    success: function(data){
+                        if (data.status === 'ok'){
+                            $("#message").val('');
+                            $('#chat-box').load(document.URL +  ' #chat-box');
+                        }
+                    }
+                });
+            });
+            // Refresh every 5 seconds
+            setInterval(function(){
+                $('#chat-box').load(document.URL +  ' #chat-box');
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
